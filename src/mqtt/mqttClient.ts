@@ -1,9 +1,12 @@
 import mqtt, { MqttClient } from "mqtt";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 // Definisikan tipe data sensor (opsional, tapi bagus untuk TS)
 interface SensorData {
     temperature: number;
     humidity: number;
+    time: Date;
 }
 
 let latestData: SensorData | null = null;
@@ -22,12 +25,38 @@ client.on("connect", () => {
     });
 });
 
-client.on("message", (topic, message) => {
+client.on("message", async (topic, message) => {
     if (topic === "sensor/data") {
         try {
-            const parsed: SensorData = JSON.parse(message.toString());
+
+            const rawData = JSON.parse(message.toString());
+
+            const parsed: SensorData = {
+                temperature: parseFloat(rawData.temperature),
+                humidity: parseFloat(rawData.humidity),
+                time: rawData.time
+            };
+
             latestData = parsed;
-            console.log("📥 Data received:", latestData);
+
+            // Simpan data ke database
+            await prisma.sensorData.create({
+                data: {
+                    temperature: parsed.temperature,
+                    humidity: parsed.humidity,
+                    time: new Date(),
+                },
+            });
+
+            // Cek jumlah data dan hapus jika terlalu banyak
+            const count = await prisma.sensorData.count();
+            if (count == 10) {
+                console.log("⚠️ Too many records, deleting oldest data");
+                await prisma.sensorData.deleteMany();
+                console.log("✅ Oldest data deleted");
+            }
+
+            console.log("Data:", latestData);
         } catch (err) {
             console.error("❌ Failed to parse message:", err);
         }

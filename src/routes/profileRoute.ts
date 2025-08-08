@@ -22,4 +22,24 @@ router.post('/profile', async (req, res) => {
   }
 });
 
+router.get('/profile/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const profile = await prisma.profile.findUnique({
+      where: { userId: Number(userId) },
+      include: { user: true },
+    });
+    if (profile) {
+      res.json(profile);
+    } else {
+      res.status(404).json({ message: "Profile not found" });
+    }
+});
+
+router.get('/profiles', async (req, res) => {
+  const profiles = await prisma.profile.findMany({
+    // include: { user: true },
+  });
+  res.json(profiles);
+});
+
 export default router;
