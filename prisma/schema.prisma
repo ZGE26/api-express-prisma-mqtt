@@ -38,7 +38,16 @@ model SensorData {
   id          Int      @id @default(autoincrement())
   temperature Float
   humidity    Float
-  time        DateTime  // waktu asli dari sensor
-  createdAt   DateTime  @default(now()) // waktu disimpan di DB
+  soilTemperature        Float
+  time        DateTime
+  createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model HightTemperature {
+  id          Int      @id @default(autoincrement())
+  temperature Float
+  time        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

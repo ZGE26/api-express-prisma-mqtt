@@ -1,9 +1,7 @@
 -- CreateTable
-CREATE TABLE `SensorData` (
+CREATE TABLE `HightTemperature` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `temperature` DOUBLE NOT NULL,
-    `humidity` DOUBLE NOT NULL,
-    `soilTemperature` DOUBLE NOT NULL,
     `time` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,

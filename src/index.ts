@@ -4,11 +4,25 @@ import express from 'express'
 import mqttRoute from './routes/mqttRoute'
 import usersRoute from './routes/usersRoute'
 import postRoute from './routes/postRoute'
+import http from "http";
+import { Server } from "socket.io";
 import profileRoute from './routes/profileRoute' 
+import {setupMqtt } from './mqtt/mqttClient'
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
 const app = express()
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+});
 
 app.use(express.json())
 
@@ -17,7 +31,9 @@ app.use("/", usersRoute)
 app.use("/", postRoute)
 app.use("/", profileRoute)
 
-const server = app.listen(3000, () =>
+setupMqtt(io);
+
+server.listen(3000, () =>
   console.log(`
 🚀 Server ready at: http://localhost:3000
 ⭐️ See sample requests: https://github.com/prisma/prisma-examples/blob/latest/orm/express/README.md#using-the-rest-api`),
