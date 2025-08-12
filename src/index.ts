@@ -8,7 +8,7 @@ import http from "http";
 import { Server } from "socket.io";
 import profileRoute from './routes/profileRoute' 
 import {setupMqtt } from './mqtt/mqttClient'
-
+import { startOfDay, endOfDay } from 'date-fns'
 const prisma = new PrismaClient().$extends(withAccelerate())
 
 const app = express()
@@ -22,6 +22,22 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
+
+    const todayStart = startOfDay(new Date());
+    const todayEnd = endOfDay(new Date());
+
+    socket.on("getLatestData", async () => {
+    const data = await prisma.sensorData.findMany({
+      where: {
+        time: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
+      },
+      orderBy: { time: 'desc' },
+    });
+    socket.emit("latestData", data.reverse());
+  });
 });
 
 app.use(express.json())

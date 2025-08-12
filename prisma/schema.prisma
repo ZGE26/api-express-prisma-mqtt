@@ -8,10 +8,10 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  posts   Post[]
   profile Profile?
 }
 
@@ -28,20 +28,21 @@ model Post {
 }
 
 model Profile {
-  id     Int     @default(autoincrement()) @id
+  id     Int     @id @default(autoincrement())
   bio    String?
   user   User    @relation(fields: [userId], references: [id])
   userId Int     @unique
 }
 
 model SensorData {
-  id          Int      @id @default(autoincrement())
-  temperature Float
-  humidity    Float
-  soilTemperature        Float
-  time        DateTime
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              Int      @id @default(autoincrement())
+  temperature     Float
+  humidity        Float
+  soilTemperature Float
+  soilHumidity    Float
+  time            DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model HightTemperature {

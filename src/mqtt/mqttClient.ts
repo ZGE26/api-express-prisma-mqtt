@@ -11,6 +11,7 @@ interface SensorData {
     temperature: number;
     humidity: number;
     soilTemperature: number;
+    soilMoisture?: number;
     time: Date;
 }
 
@@ -43,6 +44,7 @@ export function setupMqtt(io: Server) {
                     temperature: parseFloat(rawData.temperature),
                     humidity: parseFloat(rawData.humidity),
                     soilTemperature: parseFloat(rawData.soilTemperature),
+                    soilMoisture: parseFloat(rawData.soilMoisture),
                     time: rawData.time
                 };
 
@@ -54,6 +56,7 @@ export function setupMqtt(io: Server) {
                         temperature: parsed.temperature,
                         humidity: parsed.humidity,
                         soilTemperature: parsed.soilTemperature,
+                        soilHumidity: parsed.soilMoisture ?? 0, // Provide a default value if undefined
                         time: new Date(),
                     },
                 });
@@ -62,7 +65,7 @@ export function setupMqtt(io: Server) {
 
                 // Cek jumlah data dan hapus jika terlalu banyak
                 const count = await prisma.sensorData.count();
-                if (count == 10) {
+                if (count == 50) {
                     const hightTemp = await prisma.sensorData.findFirst({
                         select: {
                             temperature: true,
